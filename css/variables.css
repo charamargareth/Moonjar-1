@@ -1,0 +1,70 @@
+/* ============================================================
+   MOONJAR — Design Tokens
+   Tema: langit malam, bulan & bintang — tabungan bersama yang
+   terasa hangat, bukan kaku seperti app finansial korporat.
+   ============================================================ */
+
+:root {
+  /* --- Warna dasar (dari desain awal, dipertahankan) --- */
+  --bg-app: #0D0B1E;
+  --bg-shell: #1A1730;
+  --bg-card: #120F26;
+  --bg-elevated: #26215C;
+  --bg-input: #1A1730;
+  --border-soft: #2E2A50;
+  --border-strong: #3C3489;
+  --border-accent: #534AB7;
+
+  --text-primary: #E8E4FF;
+  --text-secondary: #AFA9EC;
+  --text-tertiary: #7F77DD;
+  --text-muted: #6B6490;
+
+  --accent-primary: #534AB7;
+  --accent-primary-hover: #7F77DD;
+  --accent-gold: #FAC775;
+  --accent-violet: #3C3489;
+  --accent-violet-soft: #CECBF6;
+
+  --success-bg: #0F3826;
+  --success-text: #5DCAA5;
+  --warn-bg: #3A2010;
+  --warn-text: #EF9F27;
+  --danger-bg: #3A1020;
+  --danger-text: #F4708C;
+
+  --av1-bg: #3C3489; --av1-text: #CECBF6;
+  --av2-bg: #085041; --av2-text: #9FE1CB;
+  --av3-bg: #72243E; --av3-text: #F4C0D1;
+  --av4-bg: #1D5A9E; --av4-text: #A9D4F4;
+  --av5-bg: #8A5A1D; --av5-text: #F4D7A9;
+
+  /* --- Tipografi ---
+     Display: Sora — geometris, sedikit "soft", cocok untuk angka besar (hero-amount)
+     Body: Inter — netral, sangat terbaca di ukuran kecil
+     Selalu sediakan fallback system font untuk offline/PWA */
+  --font-display: 'Sora', -apple-system, 'Segoe UI', sans-serif;
+  --font-sans: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* --- Radius & spacing --- */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-pill: 99px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+
+  /* --- Shadow --- */
+  --shadow-card: 0 4px 16px rgba(0,0,0,0.25);
+  --shadow-pop: 0 8px 32px rgba(83,74,183,0.25);
+
+  /* --- Safe area (PWA / notch) --- */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}

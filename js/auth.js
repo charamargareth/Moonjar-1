@@ -3,7 +3,6 @@
 // ============================================================
 
 import { supabase } from "./supabase-client.js";
-import { initialsFromName } from "./helpers.js";
 
 export async function getCurrentSession() {
   const { data, error } = await supabase.auth.getSession();
@@ -23,16 +22,11 @@ export async function registerUser({ email, password, displayName }) {
     },
   });
   if (error) throw error;
-
-  // Buat baris profile (kalau belum ada trigger DB otomatis untuk ini)
-  if (data.user) {
-    const { error: profileErr } = await supabase.from("profiles").upsert({
-      id: data.user.id,
-      display_name: displayName,
-      initials: initialsFromName(displayName),
-    });
-    if (profileErr) console.error("Gagal membuat profile:", profileErr);
-  }
+  // Baris profiles dibuat otomatis lewat database trigger (handle_new_user)
+  // begitu auth.users kebuat — lihat supabase/migrations/001_init.sql.
+  // Tidak insert manual di sini karena saat ini belum ada session aktif
+  // (terutama kalau email confirmation aktif), jadi insert dari client
+  // akan kena tolak RLS.
   return data;
 }
 
@@ -78,7 +72,13 @@ export function onAuthChange(callback) {
 // Pesan error Supabase diterjemahkan ke Bahasa Indonesia yang ramah
 export function translateAuthError(error) {
   const msg = error?.message || "";
-  if (msg.includes("Invalid login credentials")) return "Email atau password salah.";
+  const code = error?.code || "";
+  if (code === "email_not_confirmed" || msg.includes("Email not confirmed")) {
+    return "Email kamu belum dikonfirmasi. Cek inbox dan klik link konfirmasinya dulu.";
+  }
+  if (msg.includes("Invalid login credentials")) {
+    return "Email/password salah, atau kamu belum klik link konfirmasi di email.";
+  }
   if (msg.includes("User already registered")) return "Email ini sudah terdaftar. Coba login.";
   if (msg.includes("Password should be at least")) return "Password minimal 6 karakter.";
   if (msg.includes("Unable to validate email")) return "Format email tidak valid.";

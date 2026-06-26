@@ -123,7 +123,7 @@ export function renderRegister() {
     btn.innerHTML = `<span class="spinner"></span> Memproses...`;
     try {
       await registerUser({ email, password, displayName });
-      showToast("Akun dibuat! Cek email kamu untuk verifikasi (jika diaktifkan).");
+      renderCheckEmailScreen(email);
     } catch (err) {
       errEl.textContent = translateAuthError(err);
       errEl.classList.add("show");
@@ -133,6 +133,21 @@ export function renderRegister() {
   });
 
   document.getElementById("goLogin").addEventListener("click", renderLogin);
+}
+
+function renderCheckEmailScreen(email) {
+  root.innerHTML = authShell(`
+    <div class="auth-card">
+      <div class="auth-title">Cek email kamu 📬</div>
+      <div class="auth-sub">
+        Kami sudah kirim link konfirmasi ke <strong>${escapeHtml(email)}</strong>.
+        Buka email itu dan klik link konfirmasinya, baru kamu bisa masuk ke Moonjar.
+      </div>
+      <button class="btn-secondary" id="backToLoginFromCheck">Sudah konfirmasi? Masuk di sini</button>
+    </div>
+  `);
+  drawStarCanvas(document.getElementById("authStars"));
+  document.getElementById("backToLoginFromCheck").addEventListener("click", renderLogin);
 }
 
 export function renderOnboarding(userId, onDone) {

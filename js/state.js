@@ -51,6 +51,17 @@ export async function createGroup({ name, targetName, targetAmount, durationWeek
   const token = sessionData?.session?.access_token;
   if (!token) throw new Error("Sesi login tidak ditemukan. Coba login ulang.");
 
+  try {
+    const lsKey = Object.keys(localStorage).find((k) => k.includes("auth-token"));
+    const lsRaw = JSON.parse(localStorage.getItem(lsKey));
+    console.log("[DEBUG] token dari getSession():", token?.slice(0, 30), "...");
+    console.log("[DEBUG] token dari localStorage:", lsRaw?.access_token?.slice(0, 30), "...");
+    console.log("[DEBUG] token sama?", token === lsRaw?.access_token);
+    console.log("[DEBUG] expires_at session:", sessionData?.session?.expires_at, "now:", Math.floor(Date.now() / 1000));
+  } catch (e) {
+    console.log("[DEBUG] gagal baca localStorage:", e);
+  }
+
   const res = await fetch(`${REST_URL}/groups`, {
     method: "POST",
     headers: {

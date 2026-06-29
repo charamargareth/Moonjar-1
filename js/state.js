@@ -48,6 +48,12 @@ export async function createGroup({ name, targetName, targetAmount, durationWeek
   const { data: codeData, error: codeErr } = await supabase.rpc("generate_invite_code");
   if (codeErr) throw codeErr;
 
+  // DEBUG SEMENTARA
+  const { data: sessionCheck } = await supabase.auth.getSession();
+  console.log("DEBUG userId yang dikirim:", userId);
+  console.log("DEBUG session aktif:", sessionCheck?.session?.user?.id);
+  console.log("DEBUG access_token (10 char awal):", sessionCheck?.session?.access_token?.slice(0, 10));
+
   const { data: group, error } = await supabase
     .from("groups")
     .insert({

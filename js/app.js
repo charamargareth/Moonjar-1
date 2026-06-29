@@ -60,6 +60,8 @@ async function enterAppForSession(session) {
   await renderApp();
 }
 
+let isEnteringApp = false;
+
 onAuthChange(async (session) => {
   if (!session) {
     unsubscribeRealtime();
@@ -71,9 +73,14 @@ onAuthChange(async (session) => {
     renderLogin();
     return;
   }
-  // Hindari re-render berlebihan kalau session yang sama sudah dipakai
+  if (isEnteringApp) return;
   if (store.user?.id === session.user.id && store.group) return;
-  await enterAppForSession(session);
+  isEnteringApp = true;
+  try {
+    await enterAppForSession(session);
+  } finally {
+    isEnteringApp = false;
+  }
 });
 
 // --- PWA: register service worker ---

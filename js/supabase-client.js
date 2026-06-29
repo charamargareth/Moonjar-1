@@ -25,3 +25,5 @@ export const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON
 });
 
 export const FUNCTIONS_URL = `${SUPABASE_URL}/functions/v1`;
+export const REST_URL = `${SUPABASE_URL}/rest/v1`;
+export const ANON_KEY = SUPABASE_ANON_KEY;

@@ -2,7 +2,7 @@
 // MOONJAR — Data layer (Supabase queries + realtime + state)
 // ============================================================
 
-import { supabase, FUNCTIONS_URL } from "./supabase-client.js";
+import { supabase, FUNCTIONS_URL, REST_URL, ANON_KEY } from "./supabase-client.js";
 
 // Simple in-memory store yang dipakai ui.js untuk re-render
 export const store = {
@@ -44,32 +44,37 @@ export async function getMyGroup() {
 }
 
 export async function createGroup({ name, targetName, targetAmount, durationWeeks, userId }) {
-  // --- DIAGNOSTIK SEMENTARA: cek apakah userId yang dikirim cocok dengan
-  // sesi auth yang aktif di client saat ini juga ---
-  const { data: checkUser, error: checkErr } = await supabase.auth.getUser();
-  console.log("[DEBUG createGroup] userId yang dikirim:", userId);
-  console.log("[DEBUG createGroup] auth.getUser() sekarang:", checkUser?.user?.id, "error:", checkErr);
-  console.log("[DEBUG createGroup] match?", userId === checkUser?.user?.id);
-
-  // generate_invite_code() adalah fungsi SQL di migration
   const { data: codeData, error: codeErr } = await supabase.rpc("generate_invite_code");
-  console.log("[DEBUG createGroup] invite_code generated:", codeData, "error:", codeErr);
   if (codeErr) throw codeErr;
 
-  const { data: group, error } = await supabase
-    .from("groups")
-    .insert({
+  const { data: sessionData } = await supabase.auth.getSession();
+  const token = sessionData?.session?.access_token;
+  if (!token) throw new Error("Sesi login tidak ditemukan. Coba login ulang.");
+
+  const res = await fetch(`${REST_URL}/groups`, {
+    method: "POST",
+    headers: {
+      apikey: ANON_KEY,
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+      Prefer: "return=representation",
+    },
+    body: JSON.stringify({
       name,
       invite_code: codeData,
       target_name: targetName,
       target_amount: targetAmount,
       duration_weeks: durationWeeks,
       created_by: userId,
-    })
-    .select()
-    .single();
-  console.log("[DEBUG createGroup] insert groups result:", group, "error:", error);
-  if (error) throw error;
+    }),
+  });
+
+  if (!res.ok) {
+    const errBody = await res.json().catch(() => ({}));
+    throw new Error(errBody.message || `Gagal membuat grup (status ${res.status})`);
+  }
+  const groupArr = await res.json();
+  const group = groupArr[0];
 
   const { error: memberErr } = await supabase
     .from("group_members")

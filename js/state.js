@@ -44,15 +44,17 @@ export async function getMyGroup() {
 }
 
 export async function createGroup({ name, targetName, targetAmount, durationWeeks, userId }) {
+  // --- DIAGNOSTIK SEMENTARA: cek apakah userId yang dikirim cocok dengan
+  // sesi auth yang aktif di client saat ini juga ---
+  const { data: checkUser, error: checkErr } = await supabase.auth.getUser();
+  console.log("[DEBUG createGroup] userId yang dikirim:", userId);
+  console.log("[DEBUG createGroup] auth.getUser() sekarang:", checkUser?.user?.id, "error:", checkErr);
+  console.log("[DEBUG createGroup] match?", userId === checkUser?.user?.id);
+
   // generate_invite_code() adalah fungsi SQL di migration
   const { data: codeData, error: codeErr } = await supabase.rpc("generate_invite_code");
+  console.log("[DEBUG createGroup] invite_code generated:", codeData, "error:", codeErr);
   if (codeErr) throw codeErr;
-
-  // DEBUG SEMENTARA
-  const { data: sessionCheck } = await supabase.auth.getSession();
-  console.log("DEBUG userId yang dikirim:", userId);
-  console.log("DEBUG session aktif:", sessionCheck?.session?.user?.id);
-  console.log("DEBUG access_token (10 char awal):", sessionCheck?.session?.access_token?.slice(0, 10));
 
   const { data: group, error } = await supabase
     .from("groups")
@@ -66,6 +68,7 @@ export async function createGroup({ name, targetName, targetAmount, durationWeek
     })
     .select()
     .single();
+  console.log("[DEBUG createGroup] insert groups result:", group, "error:", error);
   if (error) throw error;
 
   const { error: memberErr } = await supabase
